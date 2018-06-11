@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+    <title>Test Site</title>
+</head>
+<body>
+<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+    <a class="navbar-brand" href="#">Test Site for Filestack</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+</nav>
+<main role="main">
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+        <div class="container">
+            <h1 class="display-3">Hello, world!</h1>
+            <p><strong>IMPORTANT!!!</strong></p>
+            <p>Due to changes in the HTML 5 spec (Spring 2018), for now, you might right click on the download button to download content if it is known content to your web browser!!!</p>
+            <p><a id="upload" class="btn btn-primary btn-lg" href="#" role="button">Click to Upload &raquo;</a></p>
+            <p>Currently, this session, you can upload <strong><span id="count"></span></strong> more files this session</p>
+            <hr>
+            <div class="row">
+                <div class="col">
+                    <h3>Files uploaded this current session:</h3>
+                    <ul id="drop-zone" class="list-group list-group-flush">
+                        <!-- this will just be a test -->
+                    </ul>
+                </div>
+                <div class="col">
+                    <h3>Last 5 files uploaded in previous sessions... </h3>
+                    {{# each uploads }}
+                        <h4><a href="{{ this.url }}" target="_blank">{{ this.friendly_name }}</a></h4>
+                        <h5>{{ this.date }}</h5>
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <!--<ul id="drop-zone" class="list-group list-group-flush">-->
+            <!--&lt;!&ndash; this will just be a test &ndash;&gt;-->
+        <!--</ul>-->
+    </div>
+    <hr>
+
+    <!--<div class="container">-->
+        <!--<h1>This is only a test!!!!</h1>-->
+
+    <!--</div>-->
+
+
+    <!--</div> &lt;!&ndash; /container &ndash;&gt;-->
+</main>
+<footer class="container">
+    <p>&copy; Cooper Hanke 2017-2018</p>
+</footer>
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+<!-- Filestack API loaded -->
+<script src="https://api.filepicker.io/v1/filepicker.js"></script>
+<!-- Filesaver.JS CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
+<!-- Custom scripting to start with API -->
+<script type="text/javascript">
+    // start the count as the page loads
+    var count = 5;
+    document.getElementById('count').innerHTML = count;
+    document.getElementById('upload').addEventListener("click", startPicking);
+    var dropzone = $('#drop-zone');
+    function startPicking() {
+        var key = '' /* supply your own key here to make this page work */;
+        filepicker.setKey(key);
+        filepicker.pickMultiple(
+                {
+                    maxFiles: count,
+                    services: ['COMPUTER', 'FACEBOOK', 'INSTAGRAM', 'GOOGLE_DRIVE', 'DROPBOX']
+                },
+                // so we can grab the blob but that doesn't help much does it?
+                // never you mind, honeychild, we gon' get this chit sorted!
+                // turn the blob into something we can use
+                function (Blob) {
+                    // keep an index and use that index in order to give each item a unique tag
+                    // for putting in a database later
+                    var index = 1;
+                    // for each file uploaded, we will inspect the one file
+                    Blob.forEach(function (upload) {
+                        // set the conversion boolean variable to false; if it meets our criteria,
+                        // we will pass it through to conversion
+                        var convertThis = false;
+                        // get all the pieces of the file for later
+                        var filename = upload.filename;
+                        var friendly_name = filename.substr(0, filename.indexOf('.'));
+                        var extension = filename.substr(filename.indexOf('.') + 1, filename.length + 1).toLowerCase(); // filename length + 1 for 0 index
+                        var link = upload.url;
+                        var type = upload.mimetype;
+                        // make a list of known type that can be converted according to the dev docs
+                        var extensionsToConvert = [
+                            'pdf',
+                            'doc',
+                            'odt',
+                            'xls',
+                            'ods',
+                            'ppt',
+                            'odp',
+                            'bmp',
+                            'gif',
+                            'jpg',
+                            'png',
+                            'webp',
+                            'tiff',
+                            'ai',
+                            'psd',
+                            'svg',
+                            'html',
+                            'txt'
+                        ];
+                        for (var i = 0; i < extensionsToConvert.length; i++) {
+                            if (extension.indexOf(extensionsToConvert[i]) > -1) {
+                                convertThis = true;
+                                break;
+                            }
+                        }
+                        // making special anchor tags for downloading
+                        var aTag = '<a href="' + link + '" target="_blank">';
+                        // check to see if the mime type matches with anything to do with images,
+                        // then do all the things
+                        if (type.indexOf('image') > -1) {
+                            // var image = aTag + '<img class="img-thumbnail" src="' + link + '"></a>';
+                            var image = aTag + '<img class="img-thumbnail img-fluid" src="' + link + '" alt="image of ' + filename + '"></a>';
+                            dropzone.append(
+                                    '<li class="list-group-item text-center">\n' +
+                                    '<div class="row">\n' +
+                                    '<div class="col">\n' +
+                                    '<p>' + aTag + filename + '</a></p>' +
+                                    '</div>' +
+                                    '<div class="col">' +
+                                    image +
+                                    '</div>' +
+                                    '</div>' +
+                                    '</li>'
+                            );
+                        }
+                        // if we do need to convert it, check it, and let that happen
+                        else if (convertThis === true) {
+                            var converted = link + '/convert?format=jpg&page=1&width=400';
+                            var preview = aTag + '<img class="img-thumbnail img-fluid" src="' + converted + '"></a>';
+                            dropzone.append(
+                                    // try to add a tag now
+                                    '<li class="list-group-item text-center clearf">' +
+                                    '<div class="row">' +
+                                    '<div class="col">' +
+                                    '<p>' + aTag + filename + '</a></p>' +
+                                    '</div>' +
+                                    '<div class="col">' +
+                                    preview +
+                                    '</div>' +
+                                    '</div>' +
+                                    '</li>'
+                            );
+                        }
+                        // if it is anything else, let us just get downloadable links, right? right
+                        else {
+                            dropzone.append(
+                                    '<li class="list-group-item text-center clearf">' +
+                                    '<div class="row">' +
+                                    '<div class="col">' +
+                                    '<p>' + aTag + filename + '</a></p>' +
+                                    '</div>' +
+                                    '<div class="col"></div>' +
+                                    '<div class="col">' +
+                                    '</div>' +
+                                    '</div>' +
+                                    '</li>'
+                            )
+                        }
+                        count--;
+                        document.getElementById('count').innerHTML = count;
+                        index++;
+
+                        // for now, we will make the request before we update the count,
+                        // however, we really need to update the count only after the db
+                        // is updated
+
+                        // then make a request to the server, just to see what it says
+                        var xhr = new XMLHttpRequest();
+                        var url = "/";
+                        xhr.open("POST", url, true);
+                        xhr.setRequestHeader("Content-Type", "application/json");
+                        xhr.onreadystatechange = function () {
+                            if (xhr.readyState === 4 && xhr.status === 200) {
+                                var json = JSON.parse(xhr.responseText);
+                                console.log(json.upload);
+                            }
+                        };
+                        upload['friendly_name'] = friendly_name;
+                        var data = JSON.stringify({upload: upload});
+                        xhr.send(data);
+                    })
+                },
+                function(FPError){
+                    console.log(FPError.toString());
+                });
+    }
+</script>
+</body>
+</html>
+
