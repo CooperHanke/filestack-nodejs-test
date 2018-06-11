@@ -8,3 +8,9 @@ Design is not my strong suit, but I pretty much taught myself how Node.JS works,
 I did go a little further, using MongoDB instead of MySQL. To interact with the server and the client, we used Mongoose, which essentially makes it so easy to create documents (or records) in the database.
 
 I learned a lot along the way, and this code might not be the prettiest... but it is functional, and was done ahead of schedule.
+
+In order to use this app, clone this repo, go into index.hbs, and find the variable 'key', supplying it with your own key, which you can get one from [Filestack](https://www.filestack.com/). This project is using v1 of the API. Newer ones exist, however, there was a reason for this. Once the key is added, simply use a terminal (or Git Bash on Windows) and type in the following:
+
+`npm install && npm start`
+
+Then, navigating to http://localhost:3000 in your web browser.
