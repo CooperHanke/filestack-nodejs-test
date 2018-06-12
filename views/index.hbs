@@ -182,14 +182,11 @@
                                     '</li>'
                             )
                         }
-                        count--;
-                        document.getElementById('count').innerHTML = count;
-                        index++;
-
+                        
                         // for now, we will make the request before we update the count,
                         // however, we really need to update the count only after the db
-                        // is updated
-
+                        // is updated - change complete
+                        
                         // then make a request to the server, just to see what it says
                         var xhr = new XMLHttpRequest();
                         var url = "/";
@@ -204,6 +201,10 @@
                         upload['friendly_name'] = friendly_name;
                         var data = JSON.stringify({upload: upload});
                         xhr.send(data);
+                        
+                        count--;
+                        document.getElementById('count').innerHTML = count;
+                        index++;
                     })
                 },
                 function(FPError){
